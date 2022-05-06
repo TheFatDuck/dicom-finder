@@ -58,7 +58,6 @@ namespace DICOMFinder
         }
         private void clickSearchDicom(object sender, RoutedEventArgs e)
         {
-            return;
             // 1. Fix conditions
             List<string> modalities = tbModality.Text.Split(';').ToList().Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
             List<DicomTransferSyntax> xferSyntaxes = new List<DicomTransferSyntax>();
