@@ -16,6 +16,12 @@ namespace DICOMFinder
     {
         private string rootPath;
         private string outputPath;
+
+        // Search conditions
+        List<string> modalities;
+        List<DicomTransferSyntax> xferSyntaxes;
+        List<string> sopClassUids;
+
         BackgroundWorker? bgWorker;
 
         public MainWindow()
@@ -25,9 +31,22 @@ namespace DICOMFinder
             tbRootFolderPath.Text = rootPath;
             outputPath = @"C:\__Dev\";
             tbOutputFolderPath.Text = outputPath;
+
+            modalities = new List<string>();
+            xferSyntaxes =  new List<DicomTransferSyntax>();
+            sopClassUids = new List<string>(); 
+
             bgWorker = null;
         }
-
+        private void changeUIStatus(bool isEnable)
+        {
+            btnBrowseRootPath.IsEnabled = isEnable;
+            tbModality.IsEnabled = isEnable;
+            tbTransferSyntax.IsEnabled = isEnable;
+            tbSopClassUid.IsEnabled = isEnable;
+            btnBrowseOutputPath.IsEnabled = isEnable;
+            btnSearch.IsEnabled = isEnable;
+        }
         private void clickBrowseRootPath(object sender, RoutedEventArgs e)
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
@@ -58,52 +77,73 @@ namespace DICOMFinder
         }
         private void clickSearchDicom(object sender, RoutedEventArgs e)
         {
-            // 1. Fix conditions
-            List<string> modalities = tbModality.Text.Split(';').ToList().Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
-            List<DicomTransferSyntax> xferSyntaxes = new List<DicomTransferSyntax>();
+            // Check search conditions.
+            if (!validateSearchConditions())
+            {
+                System.Windows.MessageBox.Show("Failed to search. Check path and search conditions.", "Warn", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            changeUIStatus(false);
+            // Set backgroung worker.
+            bgWorker = new BackgroundWorker();
+            bgWorker.WorkerReportsProgress = true;
+            bgWorker.DoWork += progressStarted;
+            bgWorker.ProgressChanged += progressChanged;
+            bgWorker.RunWorkerCompleted += progressCompleted;
+            bgWorker.RunWorkerAsync();
+        }
+        private bool validateSearchConditions()
+        {
+            rootPath = tbRootFolderPath.Text;
+            outputPath = tbOutputFolderPath.Text;
+            if(string.IsNullOrEmpty(rootPath) || string.IsNullOrEmpty(outputPath))
+            {
+                return false;
+            }
+            // Fix conditions
+            modalities.Clear();
+            modalities = tbModality.Text.Split(';').ToList().Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
+            xferSyntaxes.Clear();
             foreach (string xferSyntaxUid in tbTransferSyntax.Text.Split(';').ToList().Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList())
             {
                 DicomTransferSyntax syntax = DicomTransferSyntax.Query(DicomUID.Parse(xferSyntaxUid));
                 xferSyntaxes.Add(syntax);
             }
-            List<string> sopClassUids = tbSopClassUid.Text.Split(';').ToList().Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
+            sopClassUids.Clear();
+            sopClassUids = tbSopClassUid.Text.Split(';').ToList().Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
+            // Validate conditions.
             if (modalities.Count == 0 && xferSyntaxes.Count == 0 && sopClassUids.Count == 0)
             {
-                System.Windows.MessageBox.Show("Failed to search. No search conditions.", "Warn", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                return false;
             }
-
-            // 2. Get all dicom file path.
-            rootPath = tbRootFolderPath.Text;
-            string[] files = Directory.GetFiles(rootPath, "*.dcm", SearchOption.AllDirectories);
-
-            // 3. Fix output file path and create output file.
+            return true;
+        }
+        private void findDicomFiles(string[] files)
+        {
+            // Fix output file path and create output file.
             string outputFileName = DateTime.Now.ToString("yyyyMMddHHmmss") + ".txt";
             string outputFileFullePath = Path.Combine(outputPath, outputFileName);
             StreamWriter outputStreamWriter = File.CreateText(outputFileFullePath);
-
-            //4. Set backgroung worker.
-            //bgWorker = new BackgroundWorker();
-            //bgWorker.WorkerReportsProgress = true;
-            //bgWorker.DoWork += _worker_DoWork;
-            //bgWorker.ProgressChanged += _worker_ProgressChanged;
-            //bgWorker.RunWorkerCompleted += _worker_RunWorkerCompleted;
-            //bgWorker.RunWorkerAsync();
-
-            // 5. Traversal dicom files.
+            // Traversal dicom files.
             int foundCount = 0, processedCount = 0;
             string tagValue = "";
             DicomFile? dicomFile = null;
             foreach (string file in files)
             {
                 processedCount++;
+                int progress = (processedCount * 100) / files.Count();
+                if(progress > 10 ) 
+                {
+                    int a = 1; 
+                }
+                bgWorker.ReportProgress(progress);
                 if (File.Exists(file))
                 {
                     try
                     {
                         dicomFile = DicomFile.Open(file, FileReadOption.SkipLargeTags);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         // Invalid DICOM file.
                         dicomFile = null;
@@ -127,7 +167,15 @@ namespace DICOMFinder
                         }
                         if (xferSyntaxes.Count != 0)
                         {
-                            if (!xferSyntaxes.Contains(dicomFile.FileMetaInfo.TransferSyntax)) continue;
+                            try
+                            {
+                                if (!xferSyntaxes.Contains(dicomFile.FileMetaInfo.TransferSyntax)) continue;
+                            }
+                            catch
+                            {
+                                tagValue = "";
+                                continue;
+                            }
                         }
                         if (sopClassUids.Count != 0)
                         {
@@ -149,6 +197,20 @@ namespace DICOMFinder
             }
             outputStreamWriter.Close();
             System.Windows.MessageBox.Show("Search finished. Found " + foundCount + " DICOM files.", "Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        private void progressStarted(object sender, DoWorkEventArgs e)
+        {
+            // Start work.
+            findDicomFiles(Directory.GetFiles(rootPath, "*.dcm", SearchOption.AllDirectories));
+        }
+        private void progressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            pgbSearch.Value = e.ProgressPercentage;
+        }
+        private void progressCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            pgbSearch.Value = pgbSearch.Maximum;
+            changeUIStatus(true);
         }
     }
 }

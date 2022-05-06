@@ -24,7 +24,7 @@
                         <ColumnDefinition Width="15*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <TextBox x:Name="tbRootFolderPath" FontSize="12" HorizontalAlignment="Stretch" Grid.Column="0" Margin="5, 5, 5, 5" IsEnabled="False"></TextBox>
-                    <Button Content="Browse" FontSize="12" Grid.Row="0"  Click="clickBrowseRootPath" Grid.Column="1" Margin="5, 5, 5, 5"/>
+                    <Button x:Name="btnBrowseRootPath"  Content="Browse" FontSize="12" Grid.Row="0"  Click="clickBrowseRootPath" Grid.Column="1" Margin="5, 5, 5, 5"/>
                 </Grid>
             </GroupBox>
         </Grid>
@@ -69,7 +69,7 @@
                         <ColumnDefinition Width="15*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <TextBox x:Name="tbOutputFolderPath" FontSize="12" HorizontalAlignment="Stretch" Grid.Column="0" Margin="5, 5, 5, 5" IsEnabled="False"></TextBox>
-                    <Button Content="Browse" FontSize="12" Grid.Row="0"  Click="clickBrowseOutputPath" Grid.Column="1" Margin="5, 5, 5, 5"/>
+                    <Button x:Name="btnBrowseOutputPath" Content="Browse" FontSize="12" Grid.Row="0"  Click="clickBrowseOutputPath" Grid.Column="1" Margin="5, 5, 5, 5"/>
                 </Grid>
             </GroupBox>
         </Grid>
@@ -80,12 +80,7 @@
                 <ColumnDefinition Width="7*"/>
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
-            <!--<StatusBar Grid.ColumnSpan="3" Margin="10">
-                <StatusBarItem>
-                    <TextBlock>Searching DICOM files</TextBlock>
-                </StatusBarItem>
-                <ProgressBar x:Name="pgbSearch" Minimum="0" Maximum="100"/>
-            </StatusBar>-->
+            <ProgressBar x:Name="pgbSearch" Grid.ColumnSpan="3" Minimum="0" Maximum="100" Margin="10"/>
             <Button x:Name="btnSearch" Content="Search" Click="clickSearchDicom" Grid.Column="3" Margin="10"/>
         </Grid>
     </Grid>
