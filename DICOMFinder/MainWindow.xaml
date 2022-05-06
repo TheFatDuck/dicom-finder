@@ -1,0 +1,92 @@
+﻿<Window x:Class="DICOMFinder.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DICOMFinder"
+        mc:Ignorable="d"
+        Title="DICOM Finder" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="6*"></RowDefinition>
+            <RowDefinition Height="20*"></RowDefinition>
+            <RowDefinition Height="7*"></RowDefinition>
+            <RowDefinition Height="4*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <GroupBox Margin="10,0,10,0">
+                <GroupBox.Header>
+                    <Label>Root Folder</Label>
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="85*"></ColumnDefinition>
+                        <ColumnDefinition Width="15*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="tbRootFolderPath" FontSize="12" HorizontalAlignment="Stretch" Grid.Column="0" Margin="5, 5, 5, 5" IsEnabled="False"></TextBox>
+                    <Button Content="Browse" FontSize="12" Grid.Row="0"  Click="clickBrowseRootPath" Grid.Column="1" Margin="5, 5, 5, 5"/>
+                </Grid>
+            </GroupBox>
+        </Grid>
+        <Grid Grid.Row="1">
+            <GroupBox Margin="10,0,10,0">
+                <GroupBox.Header>
+                    <Label>DICOM Tags</Label>
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="15*"></ColumnDefinition>
+                        <ColumnDefinition Width="45*"></ColumnDefinition>
+                        <ColumnDefinition Width="15*"></ColumnDefinition>
+                        <ColumnDefinition Width="45*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="5*"></RowDefinition>
+                        <RowDefinition Height="5*"></RowDefinition>
+                        <RowDefinition Height="5*"></RowDefinition>
+                        <RowDefinition Height="5*"></RowDefinition>
+                        <RowDefinition Height="5*"></RowDefinition>
+                        <RowDefinition Height="5*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <!-- Left -->
+                    <Label x:Name="lblModality" Content="Modality" VerticalAlignment="Center" HorizontalContentAlignment="Right"  Width="86"  Grid.Row="0" Grid.Column="0" Margin="10,0,0,0"/>
+                    <TextBox x:Name="tbModality" HorizontalAlignment="Left"  Margin="5,5,0,5" Grid.Row="0" Grid.Column="1" Width="273"></TextBox>
+                    <Label x:Name="lblTransferSyntax" Content="TS UID" VerticalAlignment="Center" HorizontalContentAlignment="Right"  Width="86"  Grid.Row="1" Grid.Column="0" Margin="10,0,0,0"/>
+                    <TextBox x:Name="tbTransferSyntax" HorizontalAlignment="Left"  Margin="5,5,0,5" Grid.Row="1" Grid.Column="1" Width="273"></TextBox>
+                    <Label x:Name="lblSopClassUid" Content="SopClass UID" VerticalAlignment="Center" HorizontalContentAlignment="Right"  Width="86"  Grid.Row="2" Grid.Column="0" Margin="10,0,0,0"/>
+                    <TextBox x:Name="tbSopClassUid" HorizontalAlignment="Left"  Margin="5,5,0,5" Grid.Row="2" Grid.Column="1" Width="273"></TextBox>
+                </Grid>
+            </GroupBox>
+        </Grid>
+        <Grid Grid.Row="2">
+            <GroupBox Margin="10,0,10,10">
+                <GroupBox.Header>
+                    <Label>Output</Label>
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="85*"></ColumnDefinition>
+                        <ColumnDefinition Width="15*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="tbOutputFolderPath" FontSize="12" HorizontalAlignment="Stretch" Grid.Column="0" Margin="5, 5, 5, 5" IsEnabled="False"></TextBox>
+                    <Button Content="Browse" FontSize="12" Grid.Row="0"  Click="clickBrowseOutputPath" Grid.Column="1" Margin="5, 5, 5, 5"/>
+                </Grid>
+            </GroupBox>
+        </Grid>
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="7*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="7*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <!--<StatusBar Grid.ColumnSpan="3" Margin="10">
+                <StatusBarItem>
+                    <TextBlock>Searching DICOM files</TextBlock>
+                </StatusBarItem>
+                <ProgressBar x:Name="pgbSearch" Minimum="0" Maximum="100"/>
+            </StatusBar>-->
+            <Button x:Name="btnSearch" Content="Search" Click="clickSearchDicom" Grid.Column="3" Margin="10"/>
+        </Grid>
+    </Grid>
+</Window>
