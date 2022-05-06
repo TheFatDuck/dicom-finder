@@ -6,7 +6,12 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>magnifying-glass.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="magnifying-glass.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="fo-dicom" Version="5.0.2" />
